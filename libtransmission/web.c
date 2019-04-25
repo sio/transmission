@@ -8,12 +8,6 @@
 
 #include <string.h> /* strlen(), strstr() */
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#else
-#include <sys/select.h>
-#endif
-
 #include <curl/curl.h>
 
 #include <event2/buffer.h>

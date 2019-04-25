@@ -1,0 +1,34 @@
+Lift 1024 open files limit (switch to curl polling API)
+
+Strict upper bound for file limit was hardcoded into Transmission because
+`select()` is unable to handle file descriptors greater than FD_SETSIZE
+(usually 1024).
+
+The only place where `select()` was used is `libtransmission/web.c` - as a part
+of `curl_multi_*` invocation. Curl has long provided an alternative polling
+interface to avoid hitting that limit. This commit replaces curl's older API
+(`curl_multi_fdset()` + `select()`) with new polling API (`curl_multi_wait()`)
+and removes FD_SETSIZE as the upper bound on the number of open file
+descriptors.
+
+Related links:
+
+- Libcurl multi interface overview (lists both old and new API):
+  <https://curl.haxx.se/libcurl/c/libcurl-multi.html>
+- Issues and tickets:
+    - Initial discussion: <https://trac.transmissionbt.com/ticket/4164>
+    - Reports from users unhappy with the current situation:
+        - <https://trac.transmissionbt.com/ticket/4294>
+        - <https://trac.transmissionbt.com/ticket/4311>
+        - <https://trac.transmissionbt.com/ticket/4341>
+        - <https://trac.transmissionbt.com/ticket/5056>
+        - <https://trac.transmissionbt.com/ticket/5161>
+        - <https://trac.transmissionbt.com/ticket/5306>
+        - <https://trac.transmissionbt.com/ticket/5898>
+        - <https://forum.transmissionbt.com/viewtopic.php?f=1&t=14073>
+        - <https://forum.transmissionbt.com/viewtopic.php?f=1&t=17820>
+        - <https://forum.transmissionbt.com/viewtopic.php?f=4&t=17826>
+        - <https://github.com/cfpp2p/transmission/issues/11>
+        - <https://github.com/transmission/transmission/issues/309>
+        - <https://github.com/transmission/transmission/issues/633>
+        - <https://github.com/transmission/transmission/issues/871>

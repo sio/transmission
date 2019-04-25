@@ -11,10 +11,25 @@ interface to avoid hitting that limit. This commit replaces curl's older API
 and removes FD_SETSIZE as the upper bound on the number of open file
 descriptors.
 
+Consequences:
+
+- Minimum supported libcurl version has to be bumped to 7.28.0. It was released
+  in 2012, 47 vulnerabilities have been fixed since that time - I think it is
+  safe to assume that no one should be using older versions today.
+- Transmission now respects NOFILE limits that were set by the operating system
+  at startup. I believe there is no need in bringing back the `open-file-limit`
+  config parameter since the OS already provides decent tools for managing
+  limits.
+- FD_SETSIZE is still used as the upper bound for some fields in the UI. I have
+  no opinion on whether that should be changed, someone more involved with the
+  UI should make that decision.
+
 Related links:
 
 - Libcurl multi interface overview (lists both old and new API):
   <https://curl.haxx.se/libcurl/c/libcurl-multi.html>
+- Introducing `curl_multi_wait()`:
+  <https://daniel.haxx.se/blog/2012/09/03/introducing-curl_multi_wait/>
 - Issues and tickets:
     - Initial discussion: <https://trac.transmissionbt.com/ticket/4164>
     - Reports from users unhappy with the current situation:
